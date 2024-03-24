@@ -2,68 +2,120 @@
 export const prerender = false
 
 import Layout from '@/components/Layout.astro';
-import { getPuzzle, getPlayerAttempts } from '@/lib';
+import { getPuzzle } from '@/lib';
 import { fdk } from '@/utils/frames'
+import { clientSupabase } from '@/utils/supabase';
 
-
-const { idPuzzle } = Astro.params
+const { idPuzzle, idGame } = Astro.params
 const puzzle = await getPuzzle(idPuzzle as string)
 const userInput = Astro.url.searchParams.get('input')
+let state = JSON.parse(decodeURIComponent(Astro.url.searchParams.get('state') as string))
 const buttons = []
 const basicNextActionUrl= `${Astro.url.origin}${Astro.url.pathname}`
 const puzzleData = JSON.stringify(puzzle.data)
-const ogImageVariableContent = encodeURIComponent(puzzleData.trim())
 
+const ogImageVariableContent = encodeURIComponent(puzzleData.trim())
+let searchResult
 switch(userInput) {
-  case 'direction':
+  case 'row':
     buttons.push(
-    { label: 'Row',  action: 'post', target: `${basicNextActionUrl}?input=index`},
-    { label: 'Column',  action: 'post', target: `${basicNextActionUrl}?input=index`},
+    { label: "Row 1",  action: 'post', target: `${basicNextActionUrl}?input=column&state=${encodeURIComponent(JSON.stringify({
+      ...state,
+      cell: {
+        row: 1
+      }
+    }))}`},
+    { label: "Row 2",  action: 'post', target: `${basicNextActionUrl}?input=column&state=${encodeURIComponent(JSON.stringify({
+      ...state,
+      cell: {
+        row: 2
+      }
+    }))}`},
+    { label: "Row 3",  action: 'post', target: `${basicNextActionUrl}?input=column&state=${encodeURIComponent(JSON.stringify({
+      ...state,
+      cell: {
+        row: 3
+      }
+    }))}`},
     )
   break;
-  case 'index':
+  case 'column':
     buttons.push(
-    { label: '1',  action: 'post', target: `${basicNextActionUrl}?input=search`},
-    { label: '2',  action: 'post', target: `${basicNextActionUrl}?input=search`},
-    { label: '3',  action: 'post', target: `${basicNextActionUrl}?input=search`},
+    { label: "Column 1",  action: 'post', target: `${basicNextActionUrl}?input=search&state=${encodeURIComponent(JSON.stringify({
+      ...state,
+      cell: {
+        ...state.cell,
+        column: 1
+      }
+    }))}`},
+    { label: "Column 2",  action: 'post', target: `${basicNextActionUrl}?input=search&state=${encodeURIComponent(JSON.stringify({
+      ...state,
+      cell: {
+        ...state.cell,
+        column: 2
+      }
+    }))}`},
+    { label: "Column 3",  action: 'post', target: `${basicNextActionUrl}?input=search&state=${encodeURIComponent(JSON.stringify({
+      ...state,
+      cell: {
+        ...state.cell,
+        column: 3
+      }
+    }))}`}
     )
+    
   break;
+
   case 'search':
   buttons.push(
-    { label: 'Search',  action: 'post', target: `${basicNextActionUrl}?input=validate`},
+    { label: 'Search',  action: 'post', target: `${basicNextActionUrl}?input=validate&state=${encodeURIComponent(JSON.stringify(state))}`},
     )
 
   break;
   case 'validate': 
-    buttons.push(
-      { label: 'Pick & continue',  action: 'post', target: `${basicNextActionUrl}?input=direction`},
-      { label: 'Back to search',  action: 'post', target: `${basicNextActionUrl}?input=search`},
-      { label: 'Submit puzzle',  action: 'post', target: `${basicNextActionUrl}`},
+  try {
+    const body = await Astro.request.json()
+    if(body.untrustedData?.inputText) {
+      const find =await clientSupabase.from("pokemons").select("*").textSearch('name', `"${body?.untrustedData?.inputText}"` )
+      const pokemon = find?.data?.[0]
+      console.log(state)
+      if(pokemon?.national_number) {
+        searchResult = {
+          name: pokemon?.name,
+          id: pokemon?.id,
+          uri: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.national_number}.png` // temporary way to display images, best way would be to upload and serve all sprites from Pinata
+        }
+        buttons.push(
+        { label: `Pick ${searchResult?.name}`,  action: 'post', target: `${Astro.url.origin}/api/puzzles/${idPuzzle}/play/${idGame}/pickPokemon?id=${pokemon.id}&national_dex=${pokemon?.national_number}&row=${state.cell.row}&column=${state.cell.column}&ogDetails=${ogImageVariableContent}`},
+      { label: 'Back to search',  action: 'post', target: `${basicNextActionUrl}?input=search&state=${encodeURIComponent(JSON.stringify(state))}`},
     )
+      state.searchResult = searchResult
+      } else {
+        buttons.push(
+
+      { label: 'Back to search',  action: 'post', target: `${basicNextActionUrl}?input=search&state=${encodeURIComponent(JSON.stringify(state))}`},
+    )
+      }
+    }
+
+  } catch(e) {
+    console.error(e)
+    buttons.push(
+      { label: 'Back to search',  action: 'post', target: `${basicNextActionUrl}?input=search&state=${encodeURIComponent(JSON.stringify(state))}`},
+    )
+  }
+
   break;
 }
 
-/*
-try {
-  const body = await Astro.request.json()
-  console.log(body)
-  const d = await fdk.validateFrameMessage({
-    trustedData: body.trustedData,
-    untrustedData: body.untrustedData,
-  })
-  console.log(d)
-} catch(e) {
 
-}
-*/
 // Generate frame metadata using Pinata FDK
 const metadata = {
     post_url: Astro.url.href,
     image: {
-      url: `${basicNextActionUrl}/og?details=${ogImageVariableContent}`
+      url: `${basicNextActionUrl}/og?details=${ogImageVariableContent}&state=${encodeURIComponent(JSON.stringify(state))}`
     },
     buttons: buttons,
-    state: {}
   }
 if(userInput === 'search') metadata.input = {
   text: 'pikachu'

@@ -8,7 +8,6 @@ const frameUrl = Astro.url.href
 const { idPuzzle } = Astro.params
 const puzzle = await getPuzzle(idPuzzle as string)
 
-console.log(puzzle?.data?.requirements)
 // Generate frame metadata using Pinata FDK
 const frameMetadata = fdk.getFrameMetadata({
     post_url: Astro.url.href,
@@ -16,7 +15,7 @@ const frameMetadata = fdk.getFrameMetadata({
       url: `${Astro.url.href}/og?creator=${puzzle?.data?.creator}&requirements=${JSON.stringify(puzzle?.data?.requirements)}`
     },
     buttons: [
-      { label: 'Play', action: 'post', target: `${frameUrl}/play/${nanoid()}?input=direction`,},
+      { label: 'Play', action: 'post', target: `${frameUrl}/play/${nanoid()}?input=row&state=${encodeURIComponent(JSON.stringify({ grid: []}))}`,},
       { label: 'Leaderboard', action: "post_redirect"},
     ],
   });
