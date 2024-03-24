@@ -1,0 +1,13 @@
+---
+import Meta from "./Meta.astro";
+
+const { title, frameMetadata } = Astro.props
+---
+<html>
+    <head>
+        <Meta frameMetadata={frameMetadata} title={title} />
+    </head>
+    <body>
+        <slot />
+    </body>
+</html>
