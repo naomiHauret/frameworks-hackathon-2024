@@ -1,3 +1,24 @@
+[`frameworks` 2024 hackathon](https://ethglobal.com/events/frameworks) entry.
+
+**Puzzlemon** is a Pokémon trivia puzzle game packed in a [Farcaster frame](https://docs.farcaster.xyz/learn/what-is-farcaster/frames). The puzzle is a 3x3 grid, with different criteria on each row and column (for instance "Must be a fire type", "Must be a legendary", "Can mega evolve"...), and for each cells the player has to correctly guess a pokémon species that would fit the cell criterias.
+
+The game can be played through a Farcaster frame on a compatible client, or on the main webapp.
+
+## Tech stack
+
+- database: [Supabase](https://supabase.com/) ; we use this database to store the pokémons, puzzles and games.
+- frame development stack: [Pinata Frames SDK](https://docs.pinata.cloud/farcaster/fdk) and [frames.js](https://framesjs.org/) debugger
+- wallet/identity management: [Privy](https://privy.io/)
+
+## Source of Pokémon data
+
+The pokémon database was built using public CSV files from both the [PokeAPI](https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv) repository and ["The Complete Pokédex" dataset](https://www.kaggle.com/datasets/cristobalmitchell/pokedex?rvi=1). It covers generations 1, 2, 3, 4, 5, 6, 7 and 8.
+
+
+---
+ 
+ > This project was bootstrapped using Astro minimal template.
+
 # Astro Starter Kit: Minimal
 
 ```sh
