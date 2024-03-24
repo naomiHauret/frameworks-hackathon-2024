@@ -32,10 +32,10 @@ export async function POST ({params, request}) {
         url: `${new URL(request.url).origin}/puzzles/${idPuzzle}/play/${idGame}/og?t=${nanoid()}&details=${encodeURIComponent(ogDetails)}&state=${encodeURIComponent(JSON.stringify({ grid: []}))}`
       },
       buttons:finished ? [
-        {label: "Open my grid", action: 'link', target: `${new URL(request.url).origin}/game/${idGame}`},
+        {label: "Open my grid", action: 'link', target: `${new URL(request.url).origin}/games/${idGame}`},
       ] : [
         {label: "Continue",  action: 'post', target: `${new URL(request.url).origin}/puzzles/${idPuzzle}/play/${idGame}?input=row&state=${encodeURIComponent(JSON.stringify({ grid: []}))}`},
-        {label: "Open my grid", action: 'link', target: `${new URL(request.url).origin}/game/${idGame}`},
+        {label: "Open my grid", action: 'link', target: `${new URL(request.url).origin}/games/${idGame}`},
         {label: "Give up",  action: 'post', target: `${new URL(request.url).origin}/puzzles/${idPuzzle}`}
       ],
     }

@@ -1,0 +1,36 @@
+---
+export const prerender = false
+
+import Layout from '@/components/Layout.astro';
+import { fdk } from '@/utils/frames'
+import { clientSupabase } from '@/utils/supabase';
+import { nanoid } from 'nanoid';
+
+const { idGame, idPuzzle } = Astro.params
+const frameUrl = Astro.url.href
+const gamePicks = await clientSupabase.from("game-picks").select("*").eq("id_game", idGame)
+const playerFid = gamePicks.data[0].player
+
+// Get player data
+const player = await fdk.getUserByFid(playerFid)
+// Generate frame metadata using Pinata FDK
+const frameMetadata = fdk.getFrameMetadata({
+    post_url: Astro.url.href,
+    image: {
+        url: `${frameUrl}/og`
+    },
+    buttons: [
+	  // Redirect to the homepage of the website 
+      { label: 'Check grid', action: 'link', target: `${frameUrl}`,},
+      { label: 'Play this puzzle', action: 'post', target: `${Astro.url.origin}/puzzles/${idPuzzle}/play/${nanoid()}?input=row&state=${encodeURIComponent(JSON.stringify({ grid: []}))}`,},
+
+    ],
+  });
+
+
+---
+<Layout title="Pokémon trivia puzzle game - Puzzlemon" frameMetadata={frameMetadata}>
+  <div class="w-full mx-auto px-3 max-w-screen-lg pt-8">
+    <h1 class="flex flex-col items-center text-center space-y-4"><span class="text-3xl font-bold">A Puzzlemon grid by</span> <span class="w-fit text-sm font-semibold rounded-full inline-flex items-center border border-violet-300 bg-violet-50 py-0.5 ps-[0.05em] pe-[1em] text-violet-600"><img class="w-6 h-6 rounded-full" src={player.pfp}> <span class="ps-[1ex]">{player.username}</span></span></h1>
+  </div>
+</Layout>
