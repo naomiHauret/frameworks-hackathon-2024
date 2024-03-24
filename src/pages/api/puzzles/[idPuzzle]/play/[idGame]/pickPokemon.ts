@@ -1,4 +1,4 @@
-export const prerender = false 
+ 
 import { serverOnlySupabase } from "@/utils/supabase"
 import { fdk } from '@/utils/frames'
 import { nanoid } from 'nanoid'

@@ -3,7 +3,7 @@ import Layout from '@/components/Layout.astro';
 import { getPuzzle, getPlayerAttempts } from '@/lib';
 import { fdk } from '@/utils/frames'
 import { nanoid } from 'nanoid'
-export const prerender = false
+
 const frameUrl = Astro.url.href
 const { idPuzzle } = Astro.params
 const puzzle = await getPuzzle(idPuzzle as string)

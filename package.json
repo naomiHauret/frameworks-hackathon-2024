@@ -6,12 +6,13 @@
     "dev": "astro dev",
     "frames:debug": "frames",
     "start": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/check": "^0.5.10",
+    "@astrojs/netlify": "^5.2.0",
     "@astrojs/react": "^3.1.0",
     "@astrojs/tailwind": "^5.1.0",
     "@frames.js/debugger": "^0.1.9",

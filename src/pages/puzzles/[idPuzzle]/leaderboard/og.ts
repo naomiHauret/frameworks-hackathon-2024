@@ -1,5 +1,5 @@
 
-export const prerender = false
+
 import { html } from "satori-html";
 import satori from "satori";
 import sharp from "sharp";
