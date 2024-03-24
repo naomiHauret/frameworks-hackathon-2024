@@ -1,0 +1,25 @@
+---
+import Layout from '@/components/Layout.astro';
+import { fdk } from '@/utils/frames'
+
+export const prerender = true
+const frameUrl = Astro.url.href
+
+// Generate frame metadata using Pinata FDK
+const frameMetadata = fdk.getFrameMetadata({
+    post_url: Astro.url.href,
+    image: {
+        url: "https://picsum.photos/seed/frames.js/1126/600"
+    },
+    buttons: [
+	  // Redirect to the puzzle creation page on the website 
+	  { label: 'Create my puzzle', action: 'link', target: `${frameUrl}puzzle/new`,},
+    ],
+  });
+
+
+---
+<Layout title="Create your Pokémon trivia puzzle - Puzzlemon" frameMetadata={frameMetadata}>
+    <p>create puzzle</p>
+</Layout>
+  
