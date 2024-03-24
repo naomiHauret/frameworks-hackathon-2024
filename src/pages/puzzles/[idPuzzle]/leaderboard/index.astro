@@ -1,0 +1,27 @@
+---
+import Layout from "@/components/Layout.astro"
+import { fdk } from "@/utils/frames";
+import { nanoid } from "nanoid";
+
+export const prerender = false
+const frameUrl = Astro.url.href
+const basicNextActionUrl= `${Astro.url.origin}${Astro.url.pathname}`
+
+const frameMetadata = fdk.getFrameMetadata({
+    post_url: frameUrl,
+    image: {
+      url: `${frameUrl}/og`
+    },
+    buttons: [
+      { label: 'Reveal top 3',  action: 'post', target: `${basicNextActionUrl}?input=top-3`},
+      { label: 'Show my score',  action: 'post', target: `${basicNextActionUrl}?input=self`},
+      { label: 'Play',  action: 'post', target: `${frameUrl}/play/${nanoid()}`},
+    ],
+  });
+
+---
+
+<Layout title="Who's the very best ? - Pokémon trivia knowledge masters revealed!" frameMetadata={frameMetadata}>
+    <p>leaderboard</p>
+  </Layout>
+  

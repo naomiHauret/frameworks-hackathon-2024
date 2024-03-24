@@ -1,0 +1,28 @@
+---
+import Layout from '@/components/Layout.astro';
+import { getPuzzle, getPlayerAttempts } from '@/lib';
+import { fdk } from '@/utils/frames'
+import { nanoid } from 'nanoid'
+export const prerender = false
+const frameUrl = Astro.url.href
+const { idPuzzle } = Astro.params
+const puzzle = await getPuzzle(idPuzzle as string)
+
+console.log(puzzle?.data?.requirements)
+// Generate frame metadata using Pinata FDK
+const frameMetadata = fdk.getFrameMetadata({
+    post_url: Astro.url.href,
+    image: {
+      url: `${Astro.url.href}/og?creator=${puzzle?.data?.creator}&requirements=${JSON.stringify(puzzle?.data?.requirements)}`
+    },
+    buttons: [
+      { label: 'Play', action: 'post', target: `${frameUrl}/play/${nanoid()}?input=direction`,},
+      { label: 'Leaderboard', action: "post_redirect"},
+    ],
+  });
+
+
+---
+<Layout title="I challenge you! Puzzlemon - Pokemon trivia puzzle" frameMetadata={frameMetadata}>
+  <p>create puzzle</p>
+</Layout>

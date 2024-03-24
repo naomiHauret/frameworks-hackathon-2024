@@ -1,0 +1,110 @@
+---
+export const prerender = false
+
+import Layout from '@/components/Layout.astro';
+import { getPuzzle, getPlayerAttempts } from '@/lib';
+import { fdk } from '@/utils/frames'
+
+
+const { idPuzzle } = Astro.params
+const puzzle = await getPuzzle(idPuzzle as string)
+const userInput = Astro.url.searchParams.get('input')
+const buttons = []
+const basicNextActionUrl= `${Astro.url.origin}${Astro.url.pathname}`
+const puzzleData = JSON.stringify(puzzle.data)
+const ogImageVariableContent = encodeURIComponent(puzzleData.trim())
+
+switch(userInput) {
+  case 'direction':
+    buttons.push(
+    { label: 'Row',  action: 'post', target: `${basicNextActionUrl}?input=index`},
+    { label: 'Column',  action: 'post', target: `${basicNextActionUrl}?input=index`},
+    )
+  break;
+  case 'index':
+    buttons.push(
+    { label: '1',  action: 'post', target: `${basicNextActionUrl}?input=search`},
+    { label: '2',  action: 'post', target: `${basicNextActionUrl}?input=search`},
+    { label: '3',  action: 'post', target: `${basicNextActionUrl}?input=search`},
+    )
+  break;
+  case 'search':
+  buttons.push(
+    { label: 'Search',  action: 'post', target: `${basicNextActionUrl}?input=validate`},
+    )
+
+  break;
+  case 'validate': 
+    buttons.push(
+      { label: 'Pick & continue',  action: 'post', target: `${basicNextActionUrl}?input=direction`},
+      { label: 'Back to search',  action: 'post', target: `${basicNextActionUrl}?input=search`},
+      { label: 'Submit puzzle',  action: 'post', target: `${basicNextActionUrl}`},
+    )
+  break;
+}
+
+/*
+try {
+  const body = await Astro.request.json()
+  console.log(body)
+  const d = await fdk.validateFrameMessage({
+    trustedData: body.trustedData,
+    untrustedData: body.untrustedData,
+  })
+  console.log(d)
+} catch(e) {
+
+}
+*/
+// Generate frame metadata using Pinata FDK
+const metadata = {
+    post_url: Astro.url.href,
+    image: {
+      url: `${basicNextActionUrl}/og?details=${ogImageVariableContent}`
+    },
+    buttons: buttons,
+    state: {}
+  }
+if(userInput === 'search') metadata.input = {
+  text: 'pikachu'
+}
+
+const frameMetadata = fdk.getFrameMetadata(metadata);
+
+
+---
+<Layout title="Beat this puzzle ! Puzzlemon - Pokemon trivia puzzle" frameMetadata={frameMetadata}>
+  <div
+  style="height: 100%; width: 100%; font-size:75px; font-family: Inter; display: flex; justify-content: center; align-items:center;"
+>
+  <div style="display: flex; flex-wrap: wrap;">
+    <div style="display: flex; width:100%">
+      <div style="width:25%; display: flex;"></div>
+      <div style="width:25%; display: flex; align-items: end; padding-bottom:4px; justify-content: center;"><span>COL 1</span></div>
+      <div style="width:25%; display: flex; align-items: end; padding-bottom:4px; justify-content: center;"><span>COL 2</span></div>
+      <div style="width:25%; display: flex; align-items: end; padding-bottom:4px; justify-content: center;"><span>COL 3</span></div>
+    </div>
+    <div style="display: flex; width:100%">
+      <div style="width:25%; display: flex; justify-content: end; align-items: center;"><span style="padding-right: 4px">ROW 1</span></div>
+      <div style="padding-left: 2px; padding-right: 2px; width:25%; display: flex;"><span style="background-color: rgb(234,234,234); border-radius: 6px; width: 100%; aspect-ratio: 1 / 1"></span></div>
+      <div style="padding-left: 2px; padding-right: 2px; width:25%; display: flex;"><span style="background-color: rgb(234,234,234); border-radius: 6px; width: 100%; aspect-ratio: 1 / 1"></span></div>
+      <div style="padding-left: 2px; padding-right: 2px; width:25%; display: flex;"><span style="background-color: rgb(234,234,234); border-radius: 6px; width: 100%; aspect-ratio: 1 / 1"></span></div>
+    </div>
+    <div style="display: flex; width:100%; padding-top: 4px; padding-bottom: 4px;">
+    <div style="width:25%; display: flex; justify-content: end; align-items: center;"><span style="padding-right: 4px">ROW 2</span></div>
+    <div style="padding-left: 2px; padding-right: 2px; width:25%; display: flex;"><span style="background-color: rgb(234,234,234); border-radius: 6px; width: 100%; aspect-ratio: 1 / 1"></span></div>
+    <div style="padding-left: 2px; padding-right: 2px; width:25%; display: flex;"><span style="background-color: rgb(234,234,234); border-radius: 6px; width: 100%; aspect-ratio: 1 / 1"></span></div>
+    <div style="padding-left: 2px; padding-right: 2px; width:25%; display: flex;"><span style="background-color: rgb(234,234,234); border-radius: 6px; width: 100%; aspect-ratio: 1 / 1"></span></div>
+  
+  </div>
+  <div style="display: flex; width:100%">
+  <div style="width:25%; display: flex; justify-content: end; align-items: center;"><span style="padding-right: 4px">ROW </span></div>
+  <div style="padding-left: 2px; padding-right: 2px; width:25%; display: flex;"><span style="background-color: rgb(234,234,234); border-radius: 6px; width: 100%; aspect-ratio: 1 / 1"></span></div>
+  <div style="padding-left: 2px; padding-right: 2px; width:25%; display: flex;"><span style="background-color: rgb(234,234,234); border-radius: 6px; width: 100%; aspect-ratio: 1 / 1"></span></div>
+  <div style="padding-left: 2px; padding-right: 2px; width:25%; display: flex;"><span style="background-color: rgb(234,234,234); border-radius: 6px; width: 100%; aspect-ratio: 1 / 1"></span></div>
+  
+  </div>
+   
+  </div>
+</div>
+</Layout>
