@@ -5,11 +5,12 @@ import Layout from '@/components/Layout.astro';
 import { getPuzzle } from '@/lib';
 import { fdk } from '@/utils/frames'
 import { clientSupabase } from '@/utils/supabase';
+import { nanoid } from 'nanoid';
 
 const { idPuzzle, idGame } = Astro.params
 const puzzle = await getPuzzle(idPuzzle as string)
 const userInput = Astro.url.searchParams.get('input')
-let state = JSON.parse(decodeURIComponent(Astro.url.searchParams.get('state') as string))
+let state = JSON.parse(decodeURIComponent(Astro.url.searchParams.get('state') as string)) ?? { grid: []}
 const buttons = []
 const basicNextActionUrl= `${Astro.url.origin}${Astro.url.pathname}`
 const puzzleData = JSON.stringify(puzzle.data)
@@ -78,7 +79,6 @@ switch(userInput) {
     if(body.untrustedData?.inputText) {
       const find =await clientSupabase.from("pokemons").select("*").textSearch('name', `"${body?.untrustedData?.inputText}"` )
       const pokemon = find?.data?.[0]
-      console.log(state)
       if(pokemon?.national_number) {
         searchResult = {
           name: pokemon?.name,
@@ -106,6 +106,28 @@ switch(userInput) {
   }
 
   break;
+  default:
+  buttons.push(
+    { label: "Row 1",  action: 'post', target: `${basicNextActionUrl}?input=column&state=${encodeURIComponent(JSON.stringify({
+      ...state,
+      cell: {
+        row: 1
+      }
+    }))}`},
+    { label: "Row 2",  action: 'post', target: `${basicNextActionUrl}?input=column&state=${encodeURIComponent(JSON.stringify({
+      ...state,
+      cell: {
+        row: 2
+      }
+    }))}`},
+    { label: "Row 3",  action: 'post', target: `${basicNextActionUrl}?input=column&state=${encodeURIComponent(JSON.stringify({
+      ...state,
+      cell: {
+        row: 3
+      }
+    }))}`},
+    )
+
 }
 
 
@@ -113,7 +135,7 @@ switch(userInput) {
 const metadata = {
     post_url: Astro.url.href,
     image: {
-      url: `${basicNextActionUrl}/og?details=${ogImageVariableContent}&state=${encodeURIComponent(JSON.stringify(state))}`
+      url: `${basicNextActionUrl}/og?t=${nanoid()}&&details=${ogImageVariableContent}&state=${encodeURIComponent(JSON.stringify(state))}`
     },
     buttons: buttons,
   }
