@@ -1,0 +1,26 @@
+@font-face {
+    src: url('/Inter-Variable.woff2') format('woff2');
+    font-family: 'Inter';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 400 800;
+    font-named-instance: 'Regular';
+  }
+
+  @font-face {
+    src: url('/Kalam-Regular.woff2') format('woff2');
+    font-family: 'Kalam';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 400;
+  }
+  
+  @font-face {
+    src: url('/Kalam-Bold.woff2') format('woff2');
+    font-family: 'Kalam';
+    font-style: normal;
+    font-display: swap;
+    font-weight: bold;
+  }
+  
+  
